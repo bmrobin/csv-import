@@ -5,6 +5,12 @@ import highland from 'highland';
 import csv from 'fast-csv';
 import chalk from 'chalk';
 
+// fictional for the moment
+const apiUrl = 'http://localhost:8080/my-app/import';
+
+// list of CSV headers to be used
+const headers = [ ];
+
 export default class CsvImporter {
   constructor() {
     this.inputFile = process.argv[2];
@@ -19,19 +25,20 @@ export default class CsvImporter {
   processBatch(batch) {
     return batch.map((row) => {
       // this is the transform function used to take a ROW and turn it into an OBJECT to be saved
+      // make this a callback function?
     });
   }
 
   async saveBatch(vals) {
     console.log(chalk.yellow('processing batch ', ++this.counter));
     const batch = this.processBatch(vals);
-    return axios.post('http://localhost:8080/my-app/import', batch);
+    return axios.post(apiUrl, batch);
   }
 
   importCsv() {
     const fileStream = fs.createReadStream(this.inputFile);
     const csvStream = csv({
-      headers: [ ], // list of CSV headers to be used
+      headers: headers,
       renameHeaders: true,
     });
     highland(fileStream.pipe(csvStream))
