@@ -3,14 +3,15 @@ import fs from 'fs';
 import process from 'process';
 import highland from 'highland';
 import csv from 'fast-csv';
+import chalk from 'chalk';
 
 export default class CsvImporter {
   constructor() {
     this.inputFile = process.argv[2];
     if (!this.inputFile) {
-      console.error('No input file specified!');
-      console.error('Usage:\n \t node src/index.js /path/to/file.csv');
-      throw Error();
+      console.error(chalk.red('No input file specified!'));
+      console.log(chalk.magenta('\nUsage:\n    node src/index.js /path/to/file.csv\n'));
+      process.exit(1);
     }
     this.counter = 0;
   }
@@ -22,7 +23,7 @@ export default class CsvImporter {
   }
 
   async saveBatch(vals) {
-    console.log('processing batch ', ++this.counter);
+    console.log(chalk.yellow('processing batch ', ++this.counter));
     const batch = this.processBatch(vals);
     return axios.post('http://localhost:8080/my-app/import', batch);
   }
@@ -37,9 +38,9 @@ export default class CsvImporter {
       .batch(1000)
       .map((vals) => highland(this.saveBatch(vals)))
       .sequence()
-      .errors((errs) => console.error('ERROR: ', errs))
+      .errors((errs) => console.error(chalk.red('ERROR: ', errs)))
       .done(() => {
-        console.log('Finished');
+        console.log(chalk.green('Finished'));
       });
   }
 }
